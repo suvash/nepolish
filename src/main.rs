@@ -24,11 +24,11 @@ fn print_banner(config: Config) {
 
 fn repl() {
     let mut rl = Editor::<()>::new();
-    if rl.load_history("history.txt").is_err() {
-        println!("No previous history.");
+    if rl.load_history("bhoot.txt").is_err() {
+        println!("प्रयोग ईतिहास भेटिएन ।");
     }
     loop {
-        let readline = rl.readline(">> ");
+        let readline = rl.readline("अ > ");
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
@@ -48,5 +48,5 @@ fn repl() {
             }
         }
     }
-    rl.save_history("history.txt").unwrap();
+    rl.save_history("bhoot.txt").unwrap();
 }
