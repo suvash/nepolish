@@ -1,0 +1,15 @@
+polish = _{ SOI ~ notation ~ EOI }
+
+notation = { oper ~ expr+ }
+
+expr = { num | "(" ~ notation ~ ")" }
+
+num = @{ '0'..'9'+ }
+
+oper = { add | subtract | multiply | divide }
+    add      = { "+" }
+    subtract = { "-" }
+    multiply = { "*" }
+    divide   = { "/" }
+
+WHITESPACE = _{ " " | "\t" }
