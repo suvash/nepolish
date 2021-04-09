@@ -170,7 +170,7 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        let input = "+ १४ (* २३ ३४ ४५) (/ १०० २ ३) (- २३ १)";
+        let input = "+ १४ (* २३ ३४ ४५) (/ -१०० २ ३) (- २३ १)";
         let expected = Node::Expr {
             op: Operator::Add,
             children: vec![
@@ -181,7 +181,7 @@ mod tests {
                 },
                 Node::Expr {
                     op: Operator::Divide,
-                    children: vec![Node::Int(100), Node::Int(2), Node::Int(3)],
+                    children: vec![Node::Int(-100), Node::Int(2), Node::Int(3)],
                 },
                 Node::Expr {
                     op: Operator::Subtract,
