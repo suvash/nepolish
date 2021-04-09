@@ -13,14 +13,6 @@ use unicode_segmentation::UnicodeSegmentation;
 #[grammar = "parser/nepolish/grammar.pest"]
 struct NepolishParser;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub enum Operator {
-    Add,
-    Subtract,
-    Multiply,
-    Divide,
-}
-
 #[derive(Debug)]
 struct Sanhkya {
     value: u32,
@@ -54,7 +46,15 @@ impl FromStr for Sanhkya {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum Operator {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub enum Node {
     Int(u32),
     Expr { op: Operator, children: Vec<Node> },
@@ -125,7 +125,25 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        parse("+ १४ (* २३ ३४ ४५) (/ १०० २ ३) (- २३ १)");
-        assert_eq!(1 + 1, 1)
+        let input = "+ १४ (* २३ ३४ ४५) (/ १०० २ ३) (- २३ १)";
+        let expected = Node::Expr {
+            op: Operator::Add,
+            children: vec![
+                Node::Int(14),
+                Node::Expr {
+                    op: Operator::Multiply,
+                    children: vec![Node::Int(23), Node::Int(34), Node::Int(45)],
+                },
+                Node::Expr {
+                    op: Operator::Divide,
+                    children: vec![Node::Int(100), Node::Int(2), Node::Int(3)],
+                },
+                Node::Expr {
+                    op: Operator::Subtract,
+                    children: vec![Node::Int(23), Node::Int(1)],
+                },
+            ],
+        };
+        assert_eq!(parse(input).unwrap(), expected);
     }
 }
