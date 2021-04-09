@@ -22,16 +22,18 @@ pub enum Operator {
 }
 
 #[derive(Debug)]
-struct NepNum {
+struct Sanhkya {
     value: u32,
 }
 
-impl FromStr for NepNum {
+impl FromStr for Sanhkya {
     type Err = ParseIntError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        fn nepnumtoeng(nepstr: &str) -> &str {
-            match nepstr {
+        let value = s
+            .graphemes(true)
+            .into_iter()
+            .map(|n| match n {
                 "०" => "0",
                 "१" => "1",
                 "२" => "2",
@@ -43,18 +45,12 @@ impl FromStr for NepNum {
                 "८" => "8",
                 "९" => "9",
                 _ => "",
-            }
-        }
-
-        let value = s
-            .graphemes(true)
-            .into_iter()
-            .map(|n| nepnumtoeng(n))
+            })
             .collect::<Vec<&str>>()
             .join("")
             .parse::<u32>()?;
 
-        Ok(NepNum { value })
+        Ok(Sanhkya { value })
     }
 }
 
@@ -112,7 +108,7 @@ fn parse_expressions(pairs: Pairs<Rule>) -> Vec<Node> {
         let pair = pair.into_inner().next().unwrap();
         match pair.as_rule() {
             Rule::num => {
-                let num = pair.as_str().parse::<NepNum>().unwrap();
+                let num = pair.as_str().parse::<Sanhkya>().unwrap();
                 exprs.push(Node::Int(num.value))
             }
             Rule::notation => exprs.push(parse_notation(pair)),
