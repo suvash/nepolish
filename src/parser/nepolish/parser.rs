@@ -54,7 +54,7 @@ pub enum Operator {
     Divide,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Node {
     Int(u32),
     Expr { op: Operator, children: Vec<Node> },
@@ -119,26 +119,15 @@ fn parse_expressions(pairs: Pairs<Rule>) -> Vec<Node> {
 
 pub fn eval(node: Node) -> u32 {
     match node {
-        Node::Int(value) => {
-            println!("Val : {:?}", &value);
-            value
-        }
+        Node::Int(value) => value,
         Node::Expr { op, children } => {
-            let vals = children.into_iter().map(|c| eval(c)).collect::<Vec<u32>>();
-
-            let result = vals[1..].iter().fold(vals[0], |a, b| match op {
-                Operator::Add => a + b,
-                Operator::Subtract => a - b,
-                Operator::Multiply => a * b,
-                Operator::Divide => a / b,
-            });
-
-            println!("Val : {:?}", &op);
-            println!("Val : {:?}", &vals);
-            println!("Val : {:?}", &result);
-
-
-            result
+            let begin = eval(children[0].clone());
+            children[1..].iter().cloned().fold(begin, |a, b| match op {
+                Operator::Add => a + eval(b),
+                Operator::Subtract => a - eval(b),
+                Operator::Multiply => a * eval(b),
+                Operator::Divide => a / eval(b),
+            })
         }
     }
 }
@@ -174,11 +163,8 @@ mod tests {
     #[test]
     fn test_eval() {
         let input = "+ १४ ३४ (* २३ ३४ ४५)";
-        // println!("{:#?}", &input);
         let parsed = parse(input).unwrap();
-        // println!("{:#?}", &parsed);
         let result = eval(parsed);
-        // println!("{:#?}", &result);
-        assert_eq!(result, 135238);
+        assert_eq!(result, 35238);
     }
 }
