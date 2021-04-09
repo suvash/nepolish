@@ -4,7 +4,8 @@ notation = { oper ~ expr+ }
 
 expr = { num | "(" ~ notation ~ ")" }
 
-num = @{ '०'..'९'+ }
+neg = @{ "-" }
+num = @{ neg? ~ '०'..'९'+ }
 
 oper = { add | subtract | multiply | divide }
     add      = { "+" }

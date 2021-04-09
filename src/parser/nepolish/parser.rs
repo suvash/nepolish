@@ -25,6 +25,7 @@ impl fmt::Display for Sankhya {
             .to_string()
             .chars()
             .map(|c| match c {
+                '-' => "-",
                 '0' => "०",
                 '1' => "१",
                 '2' => "२",
@@ -52,6 +53,7 @@ impl FromStr for Sankhya {
             .graphemes(true)
             .into_iter()
             .map(|n| match n {
+                "-" => "-",
                 "०" => "0",
                 "१" => "1",
                 "२" => "2",
@@ -147,7 +149,6 @@ pub fn eval(node: Node) -> Sankhya {
     Sankhya(eval_node(node))
 }
 
-
 fn eval_node(node: Node) -> i32 {
     match node {
         Node::Int(value) => value,
@@ -193,9 +194,9 @@ mod tests {
 
     #[test]
     fn test_eval() {
-        let input = "- (+ १४ ३४) (* २३ ३४ ४५) (/ १०० २०)";
+        let input = "+ (- -१४ ३४) (* २ ३४ -५) (/ १०० -२०)";
         let parsed = parse(input).unwrap();
         let result = eval(parsed);
-        assert_eq!(result, Sankhya(-35147));
+        assert_eq!(result, Sankhya(-393));
     }
 }
