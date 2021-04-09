@@ -34,9 +34,7 @@ fn repl() {
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
-                let parsed = parser::parse(&line);
-                let result = parser::eval(parsed.unwrap());
-                println!("{}", result);
+                read_eval_print(&line)
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
@@ -53,4 +51,16 @@ fn repl() {
         }
     }
     rl.save_history("bhoot.txt").unwrap();
+}
+
+fn read_eval_print(line: &str) {
+    match parser::parse(line) {
+        Ok(parsed) => {
+            let result = parser::eval(parsed);
+            println!("{}", result);
+        }
+        Err(e) => {
+            eprintln!("Error : {}", e)
+        }
+    }
 }
