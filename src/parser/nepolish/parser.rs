@@ -16,14 +16,12 @@ struct NepolishParser;
 use std::fmt;
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct Sanhkya {
-    value: i32,
-}
+pub struct Sankhya(i32);
 
-impl fmt::Display for Sanhkya {
+impl fmt::Display for Sankhya {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let formatted = self
-            .value
+            .0
             .to_string()
             .chars()
             .map(|c| match c {
@@ -46,7 +44,7 @@ impl fmt::Display for Sanhkya {
     }
 }
 
-impl FromStr for Sanhkya {
+impl FromStr for Sankhya {
     type Err = ParseIntError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -70,7 +68,7 @@ impl FromStr for Sanhkya {
             .concat()
             .parse::<i32>()?;
 
-        Ok(Sanhkya { value })
+        Ok(Sankhya(value))
     }
 }
 
@@ -134,8 +132,8 @@ fn parse_expressions(pairs: Pairs<Rule>) -> Vec<Node> {
         let pair = pair.into_inner().next().unwrap();
         match pair.as_rule() {
             Rule::num => {
-                let num = pair.as_str().parse::<Sanhkya>().unwrap();
-                exprs.push(Node::Int(num.value))
+                let sankhya = pair.as_str().parse::<Sankhya>().unwrap();
+                exprs.push(Node::Int(sankhya.0))
             }
             Rule::notation => exprs.push(parse_notation(pair)),
             _ => unreachable!(),
@@ -145,8 +143,8 @@ fn parse_expressions(pairs: Pairs<Rule>) -> Vec<Node> {
     exprs
 }
 
-pub fn eval(node: Node) -> Sanhkya {
-    Sanhkya{value: eval_node(node)}
+pub fn eval(node: Node) -> Sankhya {
+    Sankhya(eval_node(node))
 }
 
 
@@ -198,6 +196,6 @@ mod tests {
         let input = "- (+ १४ ३४) (* २३ ३४ ४५) (/ १०० २०)";
         let parsed = parse(input).unwrap();
         let result = eval(parsed);
-        assert_eq!(result, Sanhkya{value: -35147});
+        assert_eq!(result, Sankhya(-35147));
     }
 }
