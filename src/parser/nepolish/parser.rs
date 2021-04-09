@@ -61,12 +61,10 @@ pub enum Node {
 }
 
 pub fn parse(source: &str) -> Result<Node, PError<Rule>> {
-    println!("{:#?}", &source);
     let nepolish = NepolishParser::parse(Rule::nepolish, source)?
         .next()
         .unwrap();
     let ast = parse_notation(nepolish);
-    println!("{:#?}", &ast);
     Ok(ast)
 }
 
@@ -119,6 +117,32 @@ fn parse_expressions(pairs: Pairs<Rule>) -> Vec<Node> {
     exprs
 }
 
+pub fn eval(node: Node) -> u32 {
+    match node {
+        Node::Int(value) => {
+            println!("Val : {:?}", &value);
+            value
+        }
+        Node::Expr { op, children } => {
+            let vals = children.into_iter().map(|c| eval(c)).collect::<Vec<u32>>();
+
+            let result = vals[1..].iter().fold(vals[0], |a, b| match op {
+                Operator::Add => a + b,
+                Operator::Subtract => a - b,
+                Operator::Multiply => a * b,
+                Operator::Divide => a / b,
+            });
+
+            println!("Val : {:?}", &op);
+            println!("Val : {:?}", &vals);
+            println!("Val : {:?}", &result);
+
+
+            result
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -145,5 +169,16 @@ mod tests {
             ],
         };
         assert_eq!(parse(input).unwrap(), expected);
+    }
+
+    #[test]
+    fn test_eval() {
+        let input = "+ १४ ३४ (* २३ ३४ ४५)";
+        // println!("{:#?}", &input);
+        let parsed = parse(input).unwrap();
+        // println!("{:#?}", &parsed);
+        let result = eval(parsed);
+        // println!("{:#?}", &result);
+        assert_eq!(result, 135238);
     }
 }
