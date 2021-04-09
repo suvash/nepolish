@@ -145,20 +145,28 @@ fn parse_expressions(pairs: Pairs<Rule>) -> Vec<Node> {
     exprs
 }
 
-pub fn eval(node: Node) -> Sankhya {
-    Sankhya(eval_node(node))
+pub fn eval(node: Node) -> Result<Sankhya, EvalError> {
+    Ok(Sankhya(eval_node(node)?))
 }
 
-fn eval_node(node: Node) -> i32 {
+#[derive(Debug)]
+pub enum EvalError {
+    DivideByZero,
+}
+
+fn eval_node(node: Node) -> Result<i32, EvalError> {
     match node {
-        Node::Int(value) => value,
+        Node::Int(value) => Ok(value),
         Node::Expr { op, children } => {
             let begin = eval_node(children[0].clone());
             children[1..].iter().cloned().fold(begin, |a, b| match op {
-                Operator::Add => a + eval_node(b),
-                Operator::Subtract => a - eval_node(b),
-                Operator::Multiply => a * eval_node(b),
-                Operator::Divide => a / eval_node(b),
+                Operator::Add => Ok(a? + eval_node(b)?),
+                Operator::Subtract => Ok(a? - eval_node(b)?),
+                Operator::Multiply => Ok(a? * eval_node(b)?),
+                Operator::Divide => match eval_node(b)? {
+                    0 => Err(EvalError::DivideByZero),
+                    not_zero_b => Ok(a? / not_zero_b),
+                },
             })
         }
     }
@@ -196,7 +204,7 @@ mod tests {
     fn test_eval() {
         let input = "+ (- -१४ ३४) (* २ ३४ -५) (/ १०० -२०)";
         let parsed = parse(input).unwrap();
-        let result = eval(parsed);
+        let result = eval(parsed).unwrap();
         assert_eq!(result, Sankhya(-393));
     }
 }

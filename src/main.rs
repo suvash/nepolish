@@ -55,12 +55,10 @@ fn repl() {
 
 fn read_eval_print(line: &str) {
     match parser::parse(line) {
-        Ok(parsed) => {
-            let result = parser::eval(parsed);
-            println!("{}", result);
-        }
-        Err(e) => {
-            eprintln!("Error : {}", e)
-        }
+        Ok(parsed) => match parser::eval(parsed) {
+            Ok(value) => println!("{}", value),
+            Err(e) => eprintln!("Error : {:?}", e),
+        },
+        Err(e) => eprintln!("Error : {}", e),
     }
 }
