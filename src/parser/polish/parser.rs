@@ -31,22 +31,20 @@ pub fn parse(source: &str) -> Result<Node, PError<Rule>> {
 
 fn parse_notation(pair: Pair<Rule>) -> Node {
     match pair.as_rule() {
-        Rule::notation => build_expr_node(pair),
+        Rule::notation => {
+            let mut pairs = pair.into_inner();
+            let oper = pairs.next().unwrap();
+            let exprs = pairs;
+
+            let operator = parse_operator(oper);
+            let expressions = parse_expressions(exprs);
+
+            Node::Expr {
+                op: operator,
+                children: expressions,
+            }
+        }
         _ => unreachable!(),
-    }
-}
-
-fn build_expr_node(pair: Pair<Rule>) -> Node {
-    let mut pairs = pair.into_inner();
-    let oper = pairs.next().unwrap();
-    let exprs = pairs;
-
-    let operator = parse_operator(oper);
-    let expressions = parse_expressions(exprs);
-
-    Node::Expr {
-        op: operator,
-        children: expressions,
     }
 }
 
@@ -90,4 +88,3 @@ mod tests {
         assert_eq!(1 + 1, 1)
     }
 }
-
