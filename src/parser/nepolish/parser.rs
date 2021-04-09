@@ -13,9 +13,37 @@ use unicode_segmentation::UnicodeSegmentation;
 #[grammar = "parser/nepolish/grammar.pest"]
 struct NepolishParser;
 
-#[derive(Debug)]
-struct Sanhkya {
-    value: u32,
+use std::fmt;
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct Sanhkya {
+    value: i32,
+}
+
+impl fmt::Display for Sanhkya {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let formatted = self
+            .value
+            .to_string()
+            .chars()
+            .map(|c| match c {
+                '0' => "०",
+                '1' => "१",
+                '2' => "२",
+                '3' => "३",
+                '4' => "४",
+                '5' => "५",
+                '6' => "६",
+                '7' => "७",
+                '8' => "८",
+                '9' => "९",
+                _ => "",
+            })
+            .collect::<Vec<&str>>()
+            .concat();
+
+        write!(f, "{}", formatted)
+    }
 }
 
 impl FromStr for Sanhkya {
@@ -40,7 +68,7 @@ impl FromStr for Sanhkya {
             })
             .collect::<Vec<&str>>()
             .concat()
-            .parse::<u32>()?;
+            .parse::<i32>()?;
 
         Ok(Sanhkya { value })
     }
@@ -56,7 +84,7 @@ pub enum Operator {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Node {
-    Int(u32),
+    Int(i32),
     Expr { op: Operator, children: Vec<Node> },
 }
 
@@ -117,16 +145,21 @@ fn parse_expressions(pairs: Pairs<Rule>) -> Vec<Node> {
     exprs
 }
 
-pub fn eval(node: Node) -> u32 {
+pub fn eval(node: Node) -> Sanhkya {
+    Sanhkya{value: eval_node(node)}
+}
+
+
+fn eval_node(node: Node) -> i32 {
     match node {
         Node::Int(value) => value,
         Node::Expr { op, children } => {
-            let begin = eval(children[0].clone());
+            let begin = eval_node(children[0].clone());
             children[1..].iter().cloned().fold(begin, |a, b| match op {
-                Operator::Add => a + eval(b),
-                Operator::Subtract => a - eval(b),
-                Operator::Multiply => a * eval(b),
-                Operator::Divide => a / eval(b),
+                Operator::Add => a + eval_node(b),
+                Operator::Subtract => a - eval_node(b),
+                Operator::Multiply => a * eval_node(b),
+                Operator::Divide => a / eval_node(b),
             })
         }
     }
@@ -162,9 +195,9 @@ mod tests {
 
     #[test]
     fn test_eval() {
-        let input = "+ १४ ३४ (* २३ ३४ ४५)";
+        let input = "- (+ १४ ३४) (* २३ ३४ ४५) (/ १०० २०)";
         let parsed = parse(input).unwrap();
         let result = eval(parsed);
-        assert_eq!(result, 35238);
+        assert_eq!(result, Sanhkya{value: -35147});
     }
 }
