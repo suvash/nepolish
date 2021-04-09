@@ -7,6 +7,7 @@ dependencies = [
  "pest",
  "pest_derive",
  "rustyline",
+ "unicode-segmentation",
 ]
 
 [[package]]

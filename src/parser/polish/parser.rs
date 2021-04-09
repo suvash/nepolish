@@ -4,6 +4,11 @@ use pest::error::Error as PError;
 use pest::iterators::{Pair, Pairs};
 use pest::Parser;
 
+use std::num::ParseIntError;
+use std::str::FromStr;
+
+use unicode_segmentation::UnicodeSegmentation;
+
 #[derive(pest_derive::Parser)]
 #[grammar = "parser/polish/grammar.pest"]
 struct PolishParser;
@@ -17,12 +22,50 @@ pub enum Operator {
 }
 
 #[derive(Debug)]
+struct NepNum {
+    value: u32,
+}
+
+fn nepnumtoeng(nepstr: &str) -> &str {
+    match nepstr {
+        "०" => "0",
+        "१" => "1",
+        "२" => "2",
+        "३" => "3",
+        "४" => "4",
+        "५" => "5",
+        "६" => "6",
+        "७" => "7",
+        "८" => "8",
+        "९" => "9",
+        _ => "",
+    }
+}
+
+impl FromStr for NepNum {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let value = s
+            .graphemes(true)
+            .into_iter()
+            .map(|n| nepnumtoeng(n))
+            .collect::<Vec<&str>>()
+            .join("")
+	    .parse::<u32>()?;
+
+        Ok(NepNum { value })
+    }
+}
+
+#[derive(Debug)]
 pub enum Node {
     Int(u32),
     Expr { op: Operator, children: Vec<Node> },
 }
 
 pub fn parse(source: &str) -> Result<Node, PError<Rule>> {
+    println!("{:#?}", &source);
     let polish = PolishParser::parse(Rule::polish, source)?.next().unwrap();
     let ast = parse_notation(polish);
     println!("{:#?}", &ast);
@@ -67,8 +110,8 @@ fn parse_expressions(pairs: Pairs<Rule>) -> Vec<Node> {
         let pair = pair.into_inner().next().unwrap();
         match pair.as_rule() {
             Rule::num => {
-                let num = pair.as_str().parse::<u32>().unwrap();
-                exprs.push(Node::Int(num))
+                let num = pair.as_str().parse::<NepNum>().unwrap();
+                exprs.push(Node::Int(num.value))
             }
             Rule::notation => exprs.push(parse_notation(pair)),
             _ => unreachable!(),
@@ -84,7 +127,7 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        parse("+ 14 (* 23 34 45) (/ 100 2 3) (- 23 1)");
+        parse("+ १४ (* २३ ३४ ४५) (/ १०० २ ३) (- २३ १)");
         assert_eq!(1 + 1, 1)
     }
 }
