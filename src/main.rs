@@ -1,6 +1,8 @@
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
+use alpa::parser::nepolish::parser;
+
 struct Config<'a> {
     name: &'a str,
     version: &'a str,
@@ -32,7 +34,9 @@ fn repl() {
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
-                println!("Line: {}", line);
+                let parsed = parser::parse(&line);
+                let result = parser::eval(parsed.unwrap());
+                println!("{}", result);
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
