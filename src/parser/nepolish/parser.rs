@@ -36,10 +36,10 @@ impl FromStr for Sanhkya {
                 "७" => "7",
                 "८" => "8",
                 "९" => "9",
-                _ => "",
+                _ => n,
             })
             .collect::<Vec<&str>>()
-            .join("")
+            .concat()
             .parse::<u32>()?;
 
         Ok(Sanhkya { value })
