@@ -1,4 +1,4 @@
-polish = _{ SOI ~ notation ~ EOI }
+nepolish = _{ SOI ~ notation ~ EOI }
 
 notation = { oper ~ expr+ }
 

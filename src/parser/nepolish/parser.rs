@@ -10,8 +10,8 @@ use std::str::FromStr;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(pest_derive::Parser)]
-#[grammar = "parser/polish/grammar.pest"]
-struct PolishParser;
+#[grammar = "parser/nepolish/grammar.pest"]
+struct NepolishParser;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Operator {
@@ -52,7 +52,7 @@ impl FromStr for NepNum {
             .map(|n| nepnumtoeng(n))
             .collect::<Vec<&str>>()
             .join("")
-	    .parse::<u32>()?;
+            .parse::<u32>()?;
 
         Ok(NepNum { value })
     }
@@ -66,8 +66,10 @@ pub enum Node {
 
 pub fn parse(source: &str) -> Result<Node, PError<Rule>> {
     println!("{:#?}", &source);
-    let polish = PolishParser::parse(Rule::polish, source)?.next().unwrap();
-    let ast = parse_notation(polish);
+    let nepolish = NepolishParser::parse(Rule::nepolish, source)?
+        .next()
+        .unwrap();
+    let ast = parse_notation(nepolish);
     println!("{:#?}", &ast);
     Ok(ast)
 }
