@@ -26,26 +26,26 @@ struct NepNum {
     value: u32,
 }
 
-fn nepnumtoeng(nepstr: &str) -> &str {
-    match nepstr {
-        "०" => "0",
-        "१" => "1",
-        "२" => "2",
-        "३" => "3",
-        "४" => "4",
-        "५" => "5",
-        "६" => "6",
-        "७" => "7",
-        "८" => "8",
-        "९" => "9",
-        _ => "",
-    }
-}
-
 impl FromStr for NepNum {
     type Err = ParseIntError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        fn nepnumtoeng(nepstr: &str) -> &str {
+            match nepstr {
+                "०" => "0",
+                "१" => "1",
+                "२" => "2",
+                "३" => "3",
+                "४" => "4",
+                "५" => "5",
+                "६" => "6",
+                "७" => "7",
+                "८" => "8",
+                "९" => "9",
+                _ => "",
+            }
+        }
+
         let value = s
             .graphemes(true)
             .into_iter()
