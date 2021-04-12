@@ -10,7 +10,7 @@ use std::str::FromStr;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(pest_derive::Parser)]
-#[grammar = "parser/nepolish/grammar.pest"]
+#[grammar = "grammar.pest"]
 struct NepolishParser;
 
 use std::fmt;

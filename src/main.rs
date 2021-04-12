@@ -1,7 +1,7 @@
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
-use alpa::parser::nepolish::parser;
+use nepolish::parser;
 
 struct Config<'a> {
     name: &'a str,
@@ -26,11 +26,12 @@ fn print_banner(config: Config) {
 
 fn repl() {
     let mut rl = Editor::<()>::new();
-    if rl.load_history("bhoot.txt").is_err() {
+    let history_filename = "np_history.txt";
+    if rl.load_history(&history_filename).is_err() {
         println!("प्रयोग ईतिहास भेटिएन ।");
     }
     loop {
-        let readline = rl.readline("अ > ");
+        let readline = rl.readline(">> ");
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
@@ -50,7 +51,7 @@ fn repl() {
             }
         }
     }
-    rl.save_history("bhoot.txt").unwrap();
+    rl.save_history(&history_filename).unwrap();
 }
 
 fn read_eval_print(line: &str) {
